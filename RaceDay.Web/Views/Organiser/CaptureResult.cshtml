@@ -1,0 +1,35 @@
+﻿@model RaceDay.Web.Models.CreateResultDto
+@{
+    ViewData["Title"] = "Capture Result";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <h2 class="text-center">Capture Result</h2>
+        <hr />
+        <form asp-action="CaptureResult" method="post">
+            <input type="hidden" name="enrolmentId" value="@ViewBag.EnrolmentId" />
+            <input type="hidden" name="eventId" value="@ViewBag.EventId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="FinishTime" class="control-label">Finish Time (HH:MM:SS)</label>
+                <input asp-for="FinishTime" class="form-control" placeholder="02:15:30" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="OverallPosition" class="control-label">Overall Position</label>
+                <input asp-for="OverallPosition" class="form-control" type="number" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="CategoryPosition" class="control-label">Category Position</label>
+                <input asp-for="CategoryPosition" class="form-control" type="number" />
+            </div>
+            <div class="form-group mb-3">
+                <label asp-for="Pace" class="control-label">Pace (e.g. 05:30 min/km)</label>
+                <input asp-for="Pace" class="form-control" />
+            </div>
+
+            <button type="submit" class="btn btn-success w-100">Save Result</button>
+        </form>
+    </div>
+</div>

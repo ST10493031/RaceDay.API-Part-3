@@ -1,0 +1,54 @@
+﻿@model RaceDay.Web.Models.EventDto
+@{
+    ViewData["Title"] = "Create Event";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <h2 class="text-center">Create a New Event</h2>
+        <hr />
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EventName" class="control-label">Event Name</label>
+                <input asp-for="EventName" class="form-control" />
+                <span asp-validation-for="EventName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EventDate" class="control-label">Date & Time</label>
+                <input asp-for="EventDate" type="datetime-local" class="form-control" />
+                <span asp-validation-for="EventDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Location" class="control-label"></label>
+                <input asp-for="Location" class="form-control" />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="EventType" class="control-label">Event Type</label>
+                <select asp-for="EventType" class="form-control">
+                    <option value="running">Running</option>
+                    <option value="walking">Walking</option>
+                    <option value="cycling">Cycling</option>
+                </select>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Event Banner (Optional)</label>
+                <input type="file" name="bannerFile" class="form-control" accept="image/*" />
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Create Event</button>
+        </form>
+    </div>
+</div>

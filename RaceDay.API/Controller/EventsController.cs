@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using RaceDay.API.Data;
+using RaceDay.API.Data;      
 using RaceDay.API.DTOs;
 using RaceDay.API.Models;
+using RaceDay.API.Services;
 using System.Security.Claims;
 
 namespace RaceDay.API.Controllers
@@ -12,28 +13,20 @@ namespace RaceDay.API.Controllers
     [Route("api/[controller]")]
     public class EventsController : ControllerBase
     {
+        
         private readonly RaceDayDbContext _context;
 
+       
         public EventsController(RaceDayDbContext context)
         {
             _context = context;
         }
 
-        // GET: api/events?type=running&date=2026-10-01
+        // GET: api/events
         [HttpGet]
-        public async Task<IActionResult> GetAllEvents([FromQuery] string? type, [FromQuery] DateTime? date)
+        public async Task<IActionResult> GetAllEvents()
         {
-            var query = _context.Events
-                .Include(e => e.Categories)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(type))
-                query = query.Where(e => e.EventType.ToLower() == type.ToLower());
-
-            if (date.HasValue)
-                query = query.Where(e => e.EventDate.Date == date.Value.Date);
-
-            var events = await query.OrderBy(e => e.EventDate).ToListAsync();
+            var events = await _context.Events.Include(e => e.Categories).ToListAsync();
             return Ok(events);
         }
 
@@ -43,14 +36,13 @@ namespace RaceDay.API.Controllers
         {
             var ev = await _context.Events
                 .Include(e => e.Categories)
-                .Include(e => e.Routes)
                 .FirstOrDefaultAsync(e => e.EventID == id);
 
             if (ev == null) return NotFound("No event with that ID.");
             return Ok(ev);
         }
 
-        // POST: api/events (Organiser only)
+        // POST: api/events
         [Authorize(Roles = "Organiser")]
         [HttpPost]
         public async Task<IActionResult> CreateEvent([FromBody] EventDto dto)
@@ -75,43 +67,18 @@ namespace RaceDay.API.Controllers
             return CreatedAtAction(nameof(GetEventById), new { id = newEvent.EventID }, newEvent);
         }
 
-        // PUT: api/events/{id} (Organiser, owner only)
+        // POST: api/events/{id}/banner
         [Authorize(Roles = "Organiser")]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateEvent(int id, [FromBody] EventDto dto)
+        [HttpPost("{id}/banner")]
+        public async Task<IActionResult> UploadBanner(int id, IFormFile file, [FromServices] BlobService blobService)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
             var ev = await _context.Events.FindAsync(id);
+            if (ev == null) return NotFound();
 
-            if (ev == null) return NotFound("No event with that ID.");
-            if (ev.UserID != userId) return Forbid();  // 403 — not this Organiser's event
-
-            ev.EventName = dto.EventName;
-            ev.Description = dto.Description;
-            ev.EventDate = dto.EventDate;
-            ev.Location = dto.Location;
-            ev.EventType = dto.EventType;
-
+            ev.BannerUrl = await blobService.UploadFileAsync(file);
             await _context.SaveChangesAsync();
-            return Ok(ev);
-        }
 
-        // DELETE: api/events/{id} (Organiser, owner only)
-        [Authorize(Roles = "Organiser")]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEvent(int id)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-            var ev = await _context.Events.FindAsync(id);
-
-            if (ev == null) return NotFound("No event with that ID.");
-            if (ev.UserID != userId) return Forbid();
-
-            _context.Events.Remove(ev);
-            await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok(new { BannerUrl = ev.BannerUrl });
         }
     }
 }

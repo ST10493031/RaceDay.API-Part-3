@@ -1,0 +1,41 @@
+﻿@model IEnumerable<RaceDay.Web.Models.EventDto>
+@{
+    ViewData["Title"] = "Upcoming Events";
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4 text-primary fw-bold">Upcoming Events</h1>
+    <p class="lead">Find your next running, walking, or cycling event.</p>
+</div>
+
+<div class="row">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center">
+            <div class="alert alert-info">No events found. Organisers can create events to see them here!</div>
+        </div>
+    }
+    else
+    {
+        @foreach (var ev in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0">
+                    @if (!string.IsNullOrEmpty(ev.BannerUrl))
+                    {
+                        <img src="@ev.BannerUrl" class="card-img-top" style="height:150px; object-fit:cover;" alt="Event Banner">
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title text-primary">@ev.EventName</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@ev.EventDate.ToString("dd MMM yyyy")</h6>
+                        <p class="card-text">@ev.Description</p>
+                    </div>
+                    <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center">
+                        <span class="badge bg-info text-dark">@ev.EventType</span>
+                        <a asp-controller="Events" asp-action="Details" asp-route-id="@ev.EventID" class="btn btn-sm btn-primary">View & Enrol</a>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

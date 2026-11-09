@@ -1,0 +1,27 @@
+﻿@model IEnumerable<RaceDay.Web.Models.EventDto>
+@{
+    ViewData["Title"] = "My Results";
+}
+
+<div class="container mt-5">
+    <h2 class="text-primary fw-bold">My Results</h2>
+    <p class="text-muted">Select an event below to view the results board.</p>
+
+    <div class="list-group mt-4 shadow-sm">
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-info">No events available.</div>
+        }
+
+        @foreach (var ev in Model)
+        {
+            <a asp-action="EventResults" asp-route-eventId="@ev.EventID" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center p-3">
+                <div>
+                    <h5 class="mb-1 text-primary fw-bold">@ev.EventName</h5>
+                    <small class="text-muted">📅 @ev.EventDate.ToString("dd MMM yyyy") | 📍 @ev.Location</small>
+                </div>
+                <span class="badge bg-primary rounded-pill px-3 py-2">View Results</span>
+            </a>
+        }
+    </div>
+</div>

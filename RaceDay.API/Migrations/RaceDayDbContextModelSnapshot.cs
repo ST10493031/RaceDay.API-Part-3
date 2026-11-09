@@ -69,6 +69,9 @@ namespace RaceDay.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EventID"));
 
+                    b.Property<string>("BannerUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -170,7 +173,7 @@ namespace RaceDay.API.Migrations
 
                     b.HasIndex("EventID");
 
-                    b.ToTable("Routes");
+                    b.ToTable("EventRoutes");
                 });
 
             modelBuilder.Entity("RaceDay.API.Models.Participant", b =>
@@ -312,19 +315,19 @@ namespace RaceDay.API.Migrations
                     b.HasOne("RaceDay.API.Models.Category", "Category")
                         .WithMany("Enrolments")
                         .HasForeignKey("CategoryID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RaceDay.API.Models.Event", "Event")
                         .WithMany()
                         .HasForeignKey("EventID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RaceDay.API.Models.Participant", "Participant")
                         .WithMany("Enrolments")
                         .HasForeignKey("ParticipantID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
@@ -361,7 +364,7 @@ namespace RaceDay.API.Migrations
                     b.HasOne("RaceDay.API.Models.EventEnrolment", "Enrolment")
                         .WithOne("Result")
                         .HasForeignKey("RaceDay.API.Models.Result", "EnrolmentID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Enrolment");

@@ -1,0 +1,67 @@
+﻿@model RaceDay.Web.Models.EventDto
+@{
+    ViewData["Title"] = Model.EventName;
+}
+
+<div class="card mb-4 shadow-sm border-0">
+    @if (!string.IsNullOrEmpty(Model.BannerUrl))
+    {
+        <img src="@Model.BannerUrl" class="card-img-top" style="max-height:350px; object-fit:cover;" alt="Banner">
+    }
+    <div class="card-body bg-light">
+        <h1 class="display-5 text-primary fw-bold">@Model.EventName</h1>
+        <h5 class="text-muted mt-2">
+            📅 @Model.EventDate.ToString("dd MMM yyyy") | 📍 @Model.Location | 🏃 @Model.EventType
+        </h5>
+        <p class="lead mt-3">@Model.Description</p>
+    </div>
+</div>
+
+<h3 class="mt-4">Available Categories</h3>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row">
+    <!-- 👇 CHANGED FROM .Any() TO .Count == 0 👇 -->
+    @if (Model.Categories == null || Model.Categories.Count == 0)
+    {
+        <div class="col-12"><p class="text-muted">No categories available yet.</p></div>
+    }
+
+    @foreach (var cat in Model.Categories)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm border-primary">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">@cat.CategoryName</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <strong>Distance:</strong> @cat.Distance km<br>
+                        <strong>Age:</strong> @cat.MinAge - @cat.MaxAge<br>
+                        <strong>Fee:</strong> R @cat.EntryFee
+                    </p>
+
+                    @if (Context.Session.GetString("UserRole") == "Participant")
+                    {
+                        <form asp-controller="Enrolments" asp-action="Enrol" method="post">
+                            <input type="hidden" name="categoryId" value="@cat.CategoryID" />
+                            <input type="hidden" name="eventId" value="@Model.EventID" />
+                            <button type="submit" class="btn btn-success w-100 fw-bold">Enrol Now</button>
+                        </form>
+                    }
+                    else if (Context.Session.GetString("JWToken") == null)
+                    {
+                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary w-100">Login to Enrol</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
